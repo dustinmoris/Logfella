@@ -34,7 +34,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      GITHUB_SOURCE: https://nuget.pkg.github.com/dustinmoris/index.json
+      GITHUB_SOURCE: https://nuget.pkg.github.com/dustinmoris/
       GITHUB_USER: dustinmoris
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
