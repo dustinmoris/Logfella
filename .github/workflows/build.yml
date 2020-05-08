@@ -5,9 +5,9 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-  release:
-    types:
-      - published
+#  release:
+#    types:
+#      - published
 
 jobs:
   build:
@@ -27,12 +27,14 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'release'
+#    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     env:
       NUGET_KEY: ${{ secrets.NUGET_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install NuGet
+        run: sudo apt install nuget
       - name: Deploy
         run: nuget push src/Logfella/bin/release/*.nupkg -Source https://api.nuget.org/v3/index.json -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
