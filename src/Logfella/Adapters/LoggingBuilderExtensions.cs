@@ -4,7 +4,7 @@ namespace Logfella.Adapters
 {
     public static class LoggingBuilderExtensions
     {
-        public static void UseLogfella(this ILoggingBuilder builder) =>
+        public static ILoggingBuilder UseLogfella(this ILoggingBuilder builder) =>
             builder
                 .ClearProviders()
                 .AddProvider(new LoggerAdapterProvider());

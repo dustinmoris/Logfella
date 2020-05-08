@@ -13,6 +13,7 @@ ProjectSection(SolutionItems) = preProject
 	README.md = README.md
 	.gitattributes = .gitattributes
 	.gitignore = .gitignore
+	RELEASE_NOTES.md = RELEASE_NOTES.md
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logfella", "src\Logfella\Logfella.csproj", "{00916410-276D-4D09-87E5-8BA11E0A1137}"
