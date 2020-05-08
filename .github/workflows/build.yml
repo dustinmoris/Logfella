@@ -44,4 +44,4 @@ jobs:
       - name: Install NuGet
         run: sudo apt install nuget
       - name: Push NuGet
-        run: nuget push src/Logfella/bin/Release/*.nupkg -Source https://api.nuget.org/v3/index.json -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
+        run: nuget push nupkg/*.nupkg -Source https://api.nuget.org/v3/index.json -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
