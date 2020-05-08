@@ -34,18 +34,27 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_SOURCE: https://nuget.pkg.github.com/dustinmoris/index.json
+      GITHUB_USER: dustinmoris
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
           name: nupkg
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          source-url: https://nuget.pkg.github.com/dustinmoris/index.json
       - name: Push Pre-Release NuGet
-        run: dotnet nuget push nupkg/*.nupkg --skip-duplicate --no-symbols true
+      run: |
+        for f in ./nupkg/*.nupkg
+        do
+          curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_SOURCE
+        done
+      shell: bash
+#      - name: Setup .NET Core
+#        uses: actions/setup-dotnet@v1
+#        with:
+#          source-url: https://nuget.pkg.github.com/dustinmoris/index.json
+#      - name: Push Pre-Release NuGet
+#        run: dotnet nuget push nupkg/*.nupkg --skip-duplicate --no-symbols true
 
   deploy:
     needs: build
