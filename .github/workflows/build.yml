@@ -29,6 +29,8 @@ jobs:
       with:
         name: nupkg
         path: ./src/Logfella/bin/Release/*.nupkg
+    - name: Publish Pre-Release NuGet
+      run: dotnet nuget push "src/Logfella/bin/Release/*.nupkg" --source "github" --skip-duplicate
 
   deploy:
     needs: build
@@ -41,7 +43,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: nupkg
-      - name: Install NuGet
-        run: sudo apt install nuget
+#      - name: Install NuGet
+#        run: sudo apt install nuget
       - name: Push NuGet
-        run: nuget push nupkg/*.nupkg -Source https://api.nuget.org/v3/index.json -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
+        run: dotnet nuget push nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key $NUGET_KEY
