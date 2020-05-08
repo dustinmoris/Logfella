@@ -1,5 +1,8 @@
 # Logfella
 
+
+![Logfella](https://raw.githubusercontent.com/dustinmoris/Logfella/master/logfella.svg)
+
 Logfella is a small logging library specifically designed to work well with [Google Cloud Logging](https://cloud.google.com/logging/).
 
 If you are running a .NET Core or ASP.NET Core application inside GCP and want to write structured logs into [Google Cloud Logging](https://cloud.google.com/logging/) then this library will offer you a more advanced integration point than .NET Core's out of the box `ILogger` providers.
