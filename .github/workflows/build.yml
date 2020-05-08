@@ -24,6 +24,11 @@ jobs:
       run: dotnet build --configuration Release --no-restore src/Logfella/Logfella.csproj
     - name: Pack
       run: dotnet pack --configuration Release --no-restore --verbosity normal src/Logfella/Logfella.csproj
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: nupkg
+        path: ./src/Logfella/bin/Release/*.nupkg
 
   deploy:
     needs: build
@@ -32,9 +37,11 @@ jobs:
     env:
       NUGET_KEY: ${{ secrets.NUGET_KEY }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Download Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: nupkg
       - name: Install NuGet
         run: sudo apt install nuget
-      - name: Deploy
-        run: nuget push "src/Logfella/bin/Release/*.nupkg" -Source "https://api.nuget.org/v3/index.json" -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
+      - name: Push NuGet
+        run: nuget push src/Logfella/bin/Release/*.nupkg -Source https://api.nuget.org/v3/index.json -Verbosity detailed -NonInteractive -SkipDuplicate -ApiKey $NUGET_KEY
