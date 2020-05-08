@@ -12,9 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_SOURCE: https://nuget.pkg.github.com/dustinmoris/index.json
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -32,12 +29,23 @@ jobs:
       with:
         name: nupkg
         path: ./src/Logfella/bin/Release/*.nupkg
-    - name: Install NuGet
-      run: sudo apt install nuget
-    - name: Set NuGet API Key
-      run: nuget setapikey $GITHUB_TOKEN -Source $GITHUB_SOURCE
-    - name: Publish Pre-Release NuGet
-      run: nuget push "src/Logfella/bin/Release/*.nupkg" -Source $GITHUB_SOURCE -SkipDuplicate -NonInteractive
+
+  prerelease:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: nupkg
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          source-url: https://nuget.pkg.github.com/dustinmoris/index.json
+      - name: Push Pre-Release NuGet
+        run: dotnet nuget push nupkg/*.nupkg --skip-duplicate --no-symbols true
 
   deploy:
     needs: build
