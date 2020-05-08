@@ -1,7 +1,4 @@
-# Logfella
-
-
-![Logfella](https://raw.githubusercontent.com/dustinmoris/Logfella/master/logfella.svg)
+# ![Logfella](https://raw.githubusercontent.com/dustinmoris/Logfella/master/assets/logfella-64x64.png?token=ABC6K2RUACTPL36RY54F6BK6WVIXG) Logfella
 
 Logfella is a small logging library specifically designed to work well with [Google Cloud Logging](https://cloud.google.com/logging/).
 
