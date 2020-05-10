@@ -17,8 +17,9 @@ namespace Logfella.Samples.MVC
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // Configure a new log writer to be used across an entire request
-            // and set a new GUID as correlationId:
+            // Configure a new log writer to be used across the entire request
+            // pipeline and set correlationId.
+            // (This is middleware call is optional if required)
             app.UsePerRequestLogWriter(
                 ctx => new ConsoleLogWriter(
                     Severity.Debug,

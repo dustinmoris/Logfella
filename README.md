@@ -24,14 +24,15 @@ That being said, it has been written with flexibility and extensibility 100% in 
 - `ILogWriter` can be injected either via DI or called directly from the static `Log` type
 - 100% customisable and extensible
 - Uses .NET Core's new `System.Text.Json` library for faster JSON serialisation
+- Supports log aggregation via an optional correlation ID which can be set on a `LogWriter` instance. The additional `PerRequestLogWriterMiddleware` makes it extremely easy to compute (or inherit) a correlation ID for all logs for a given web request pipeline. 
     
  ## How it works
  
-More documentation coming soon.
+More documentation coming soon, but for now check out the sample application inside `/samples`.
  
  ## Using with Microsoft.Extensions.Logging
  
- More documentation coming soon.
+ More documentation coming soon, but for now check out the sample application inside `/samples`.
  
  ## Using with ASP.NET Core
  
@@ -39,7 +40,7 @@ More documentation coming soon.
  
  #### C# Example
  
- Coming soon.
+ More documentation coming soon, but for now check out the sample application inside `/samples`.
  
  #### F# Example
  
@@ -90,8 +91,7 @@ let main _ =
         configureLogger()
 
         Host.CreateDefaultBuilder()
-            .ConfigureLogging(
-                fun b -> b.UseLogfella())  // Integrate with Micrisoft.Extensions.Logging
+            .UseLogfella()  // Integrate with Micrisoft.Extensions.Logging
             .ConfigureWebHost(
                 fun webHostBuilder ->
                     webHostBuilder
