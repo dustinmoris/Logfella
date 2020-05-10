@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Logfella.LogWriters
 {
-    public class MultiLogWriter : LogWriter
+    public sealed class MultiLogWriter : LogWriter
     {
         private readonly ILogWriter[] _logWriters;
 

@@ -1,3 +1,12 @@
+# 3.0.0
+
+- Changed the `SetLogWriter` and `GetLogWriter` methods to a single `LogWriter` property with setter and getter.
+- Added an internal `AsyncLocal<ILogWriter>` instance for per-request log writer instantiation (can be used to set a correlation ID per HTTP request). Use the new `PerRequestLogWriterMiddleware` to set up a new `ILogWriter` instance for each request pipeline.
+- The `UseLogfella` extension method will automatically register a transient `ILogWriter` dependency.
+- Each log writer accepts an optional `correlationIdKey` and `correlationId` parameter in their constructors.
+- The coloring of console logs can be disabled for the `ConsoleLogWriter` now.
+- Sealed all `ILogWriter` implementations.
+
 # 2.0.0
 
 Extremely minor, but breaking API change of making `IHostBuilder` and `ILoggingBuilder` extension methods return a non `void` type to support configuration chaining.

@@ -1,99 +1,110 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Logfella.LogWriters;
 
 namespace Logfella
 {
     public static class Log
     {
-        private static ILogWriter _logWriter = new NullLogWriter(Severity.Info);
+        private static ILogWriter _genericLogWriter =
+            new NullLogWriter(Severity.Default);
 
-        public static ILogWriter GetLogWriter() => _logWriter;
+        private static readonly AsyncLocal<ILogWriter> AsyncLocalLogWriter =
+            new AsyncLocal<ILogWriter>();
 
-        public static void SetLogWriter(ILogWriter logWriter)
+        public static ILogWriter LogWriter
         {
-            _logWriter = logWriter ?? throw new ArgumentNullException(nameof(logWriter));
+            get => AsyncLocalLogWriter.Value ?? _genericLogWriter;
+            set => _genericLogWriter = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        internal static void SetAsyncLocalLogWriter(ILogWriter logWriter)
+        {
+            AsyncLocalLogWriter.Value =
+                logWriter
+                ?? throw new ArgumentNullException(nameof(logWriter));
         }
 
         public static void Default(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Default(message, data);
+            LogWriter.Default(message, data);
 
         public static void Default(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Default(message, ex, data);
+            LogWriter.Default(message, ex, data);
 
         public static void Default(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Default(message, data, ex);
+            LogWriter.Default(message, data, ex);
 
         public static void Debug(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Debug(message, data);
+            LogWriter.Debug(message, data);
 
         public static void Debug(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Debug(message, ex, data);
+            LogWriter.Debug(message, ex, data);
 
         public static void Debug(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Debug(message, data, ex);
+            LogWriter.Debug(message, data, ex);
 
         public static void Info(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Info(message, data);
+            LogWriter.Info(message, data);
 
         public static void Info(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Info(message, ex, data);
+            LogWriter.Info(message, ex, data);
 
         public static void Info(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Info(message, data, ex);
+            LogWriter.Info(message, data, ex);
 
         public static void Notice(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Notice(message, data);
+            LogWriter.Notice(message, data);
 
         public static void Notice(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Notice(message, ex, data);
+            LogWriter.Notice(message, ex, data);
 
         public static void Notice(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Notice(message, data, ex);
+            LogWriter.Notice(message, data, ex);
 
         public static void Warning(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Warning(message, data);
+            LogWriter.Warning(message, data);
 
         public static void Warning(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Warning(message, ex, data);
+            LogWriter.Warning(message, ex, data);
 
         public static void Warning(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Warning(message, data, ex);
+            LogWriter.Warning(message, data, ex);
 
         public static void Error(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Error(message, data);
+            LogWriter.Error(message, data);
 
         public static void Error(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Error(message, ex, data);
+            LogWriter.Error(message, ex, data);
 
         public static void Error(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Error(message, data, ex);
+            LogWriter.Error(message, data, ex);
 
         public static void Critical(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Critical(message, data);
+            LogWriter.Critical(message, data);
 
         public static void Critical(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Critical(message, ex, data);
+            LogWriter.Critical(message, ex, data);
 
         public static void Critical(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Critical(message, data, ex);
+            LogWriter.Critical(message, data, ex);
 
         public static void Alert(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Alert(message, data);
+            LogWriter.Alert(message, data);
 
         public static void Alert(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Alert(message, ex, data);
+            LogWriter.Alert(message, ex, data);
 
         public static void Alert(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Alert(message, data, ex);
+            LogWriter.Alert(message, data, ex);
 
         public static void Emergency(string message, params Tuple<string, object>[] data) =>
-            _logWriter.Emergency(message, data);
+            LogWriter.Emergency(message, data);
 
         public static void Emergency(string message, Exception ex, params Tuple<string, object>[] data) =>
-            _logWriter.Emergency(message, ex, data);
+            LogWriter.Emergency(message, ex, data);
 
         public static void Emergency(string message, IDictionary<string, object> data, Exception ex = null) =>
-            _logWriter.Emergency(message, data, ex);
+            LogWriter.Emergency(message, data, ex);
     }
 }

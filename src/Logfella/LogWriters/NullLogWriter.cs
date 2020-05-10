@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Logfella.LogWriters
 {
-    public class NullLogWriter : LogWriter
+    public sealed class NullLogWriter : LogWriter
     {
         public NullLogWriter(Severity minSeverity)
             : base(minSeverity)

@@ -4,11 +4,23 @@ using System.Text;
 
 namespace Logfella.LogWriters
 {
-    public class ConsoleLogWriter : LogWriter
+    public sealed class ConsoleLogWriter : LogWriter
     {
-        public ConsoleLogWriter(Severity minSeverity)
-            : base(minSeverity)
+        private readonly string _correlationId;
+        private readonly bool _colorOutput;
+
+        public ConsoleLogWriter(
+            Severity minSeverity,
+            string correlationIdKey = "correlationId",
+            string correlationId = "",
+            bool colorOutput = true)
+            : base(
+                minSeverity,
+                correlationIdKey,
+                correlationId)
         {
+            _correlationId = correlationId;
+            _colorOutput = colorOutput;
         }
 
         protected override void WriteLog(
@@ -20,6 +32,10 @@ namespace Logfella.LogWriters
             var sb = new StringBuilder();
             sb.Append($"{DateTimeOffset.UtcNow:yyy-MM-dd hh:mm:ss.fff}");
             sb.Append($" [{severity.ToString()}] ");
+
+            if (!string.IsNullOrEmpty(_correlationId))
+                sb.Append($"<{_correlationId}> ");
+
             sb.Append(message);
 
             while (ex != null)
@@ -37,6 +53,12 @@ namespace Logfella.LogWriters
                 }
 
                 ex = ex.InnerException;
+            }
+
+            if (!_colorOutput)
+            {
+                Console.WriteLine(sb.ToString());
+                return;
             }
 
             var originalForegroundColour = Console.ForegroundColor;

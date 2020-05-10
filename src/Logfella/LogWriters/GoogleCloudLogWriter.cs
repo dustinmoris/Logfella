@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Logfella.LogWriters
 {
-    public class GoogleCloudLogWriter : LogWriter
+    public sealed class GoogleCloudLogWriter : LogWriter
     {
         public class ErrorContext
         {
@@ -46,16 +46,24 @@ namespace Logfella.LogWriters
         /// Initialises a new GoogleCloudLogWriter object.
         /// </summary>
         /// <param name="minSeverity">Minimum severity for the logger to write logs.</param>
+        /// <param name="correlationIdKey">The key under which a correlationId will be logged.</param>
+        /// <param name="correlationId">An ID to correlate a set of logs (e.g. per HTTP request).</param>
         /// <param name="serviceName">Name of the application/service writing logs.</param>
         /// <param name="serviceVersion">Version of the application/version writing logs.</param>
         /// <param name="useGoogleCloudTimestamp">If set to true, then Google Cloud Logging will set its own timestamp for log entries when they have been written to stdout.</param>
         /// <param name="labels">Optional labels to attach to all log entries.</param>
         public GoogleCloudLogWriter(
             Severity minSeverity,
+            string correlationIdKey = "correlationId",
+            string correlationId = "",
             string serviceName = null,
             string serviceVersion = null,
             bool useGoogleCloudTimestamp = false,
-            IDictionary<string, string> labels = null) : base(minSeverity)
+            IDictionary<string, string> labels = null)
+            : base(
+                minSeverity,
+                correlationIdKey,
+                correlationId)
         {
             _serviceName = serviceName;
             _serviceVersion = serviceVersion;

@@ -12,12 +12,20 @@ namespace Logfella
         /// </summary>
         protected readonly Severity MinSeverity;
 
+        private readonly string _correlationIdKey;
+        private readonly string _correlationId;
+
         /// <summary>
         /// Initialises a new instance of a LogWriter with a minimum severity level.
         /// </summary>
-        protected LogWriter(Severity minSeverity)
+        protected LogWriter(
+            Severity minSeverity,
+            string correlationIdKey = "correlationId",
+            string correlationId = "")
         {
             MinSeverity = minSeverity;
+            _correlationIdKey = correlationIdKey;
+            _correlationId = correlationId;
         }
 
         /// <summary>
@@ -38,8 +46,16 @@ namespace Logfella
             IDictionary<string, object> data,
             Exception ex = null)
         {
-            if (severity >= MinSeverity)
-                WriteLog(severity, message, data, ex);
+            if (severity < MinSeverity)
+                return;
+
+            if (!string.IsNullOrEmpty(_correlationId))
+            {
+                data ??= new Dictionary<string, object>();
+                data.Add(_correlationIdKey, _correlationId);
+            }
+
+            WriteLog(severity, message, data, ex);
         }
 
         /// <inheritdoc />

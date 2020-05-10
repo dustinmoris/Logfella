@@ -6,10 +6,10 @@ namespace Logfella.Adapters
 {
     public class LoggerAdapter : ILogger
     {
-        private class SingletonDisposable : IDisposable
+        private sealed class NoOpDisposable : IDisposable
         {
-            internal static readonly SingletonDisposable Instance = new SingletonDisposable();
-            private SingletonDisposable() { }
+            internal static readonly NoOpDisposable Instance = new NoOpDisposable();
+            private NoOpDisposable() { }
             public void Dispose() { }
         }
 
@@ -54,7 +54,7 @@ namespace Logfella.Adapters
             Exception exception,
             Func<TState, Exception, string> formatter)
         {
-            var logWriter = Logfella.Log.GetLogWriter();
+            var logWriter = Logfella.Log.LogWriter;
             var severity = MapToSeverity(logLevel);
             var message = formatter(state, exception);
 
@@ -96,6 +96,6 @@ namespace Logfella.Adapters
 
         // No support for scopes needed.
         public IDisposable BeginScope<TState>(TState state)
-            => SingletonDisposable.Instance;
+            => NoOpDisposable.Instance;
     }
 }
