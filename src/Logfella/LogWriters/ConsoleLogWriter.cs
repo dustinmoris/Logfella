@@ -11,16 +11,16 @@ namespace Logfella.LogWriters
 
         public ConsoleLogWriter(
             Severity minSeverity,
+            bool colorOutput = true,
             string correlationIdKey = "correlationId",
-            string correlationId = "",
-            bool colorOutput = true)
+            string correlationId = "")
             : base(
                 minSeverity,
                 correlationIdKey,
                 correlationId)
         {
-            _correlationId = correlationId;
             _colorOutput = colorOutput;
+            _correlationId = correlationId;
         }
 
         protected override void WriteLog(

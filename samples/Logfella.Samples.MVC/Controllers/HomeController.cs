@@ -10,7 +10,8 @@ namespace Logfella.Samples.MVC.Controllers
         // Inject an ILogger<T> as normal.
         // The ILogger interface is somewhat limited when it comes
         // to logging to GCP, as Microsoft.Extensions.Logging
-        // has a smaller set of severity levels.
+        // has a smaller set of severity levels and doesn't set
+        // certain properties for Error Reporting.
         private readonly ILogger<HomeController> _logger;
 
         // Inject an ILogWriter to use Logfella's own abstraction
@@ -44,13 +45,13 @@ namespace Logfella.Samples.MVC.Controllers
         {
             // Alternatively, if you can't be bothered to inject a logger
             // into every single class across your entire application then
-            // just use the static Log instance.
+            // you can use the static Log instance instead.
             // Regardless which option you use (ILogger vs. ILogWriter vs. Log)
-            // you'll be using the same global or per request instance under
-            // the cover and therefore not miss out on features such as correlating
+            // you'll always be using the same global or per request instance under
+            // the hood and therefore not miss out on features such as correlating
             // logs or pre-configured labels, severity, and more.
             // The static Log instance is mainly the preferred option for
-            // functional application sin F#, where constructor DI is not idiomatic.
+            // functional applications in F#, where constructor DI is not idiomatic.
             Log.Info("Foo");
             return "foo";
         }

@@ -7,16 +7,40 @@ namespace Logfella
 {
     public static class Log
     {
-        private static ILogWriter _genericLogWriter =
+        static Log()
+        {
+        }
+
+        private static readonly object _padlock = new object();
+
+        private static ILogWriter _globalLogWriter =
             new NullLogWriter(Severity.Default);
 
         private static readonly AsyncLocal<ILogWriter> AsyncLocalLogWriter =
             new AsyncLocal<ILogWriter>();
 
-        public static ILogWriter LogWriter
+        private static ILogWriter LogWriter => GetLogWriter();
+
+        /// <summary>
+        /// <para>Returns the current active instance of an `ILogWriter` implementation.</para>
+        /// <para>In an ASP.NET Core application this could be a per-request `ILogWriter` instance if the corresponding middleware has been set up, otherwise it will always be the global `ILogWriter` singleton instance.</para>
+        /// </summary>
+        public static ILogWriter GetLogWriter() => AsyncLocalLogWriter.Value ?? _globalLogWriter;
+
+        /// <summary>
+        /// <para>Sets a global singleton `ILogWriter` instance.</para>
+        /// <para>Setting a global `ILogWriter` instance should only happen once during application start-up and this method has not been optimised for multiple updates at runtime in a multi threaded environment.</para>
+        /// </summary>
+        /// <param name="logWriter"></param>
+        public static void SetGlobalLogWriter(ILogWriter logWriter)
         {
-            get => AsyncLocalLogWriter.Value ?? _genericLogWriter;
-            set => _genericLogWriter = value ?? throw new ArgumentNullException(nameof(value));
+            if (logWriter == null)
+                throw new ArgumentNullException(nameof(logWriter));
+
+            lock(_padlock)
+            {
+                _globalLogWriter = logWriter;
+            }
         }
 
         internal static void SetAsyncLocalLogWriter(ILogWriter logWriter)

@@ -9,7 +9,7 @@ namespace Logfella.Adapters
             builder
                 .ConfigureServices(
                     (_, svc) => svc.TryAddTransient(
-                        _ => Log.LogWriter))
+                        __ => Log.GetLogWriter()))
                 .ConfigureLogging(b => b.UseLogfella());
     }
 }

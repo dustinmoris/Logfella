@@ -1,3 +1,10 @@
+# 4.0.0
+
+- Removed duplicate error logging
+- Setting the `@type` property for exception logs
+- Added ability to log request data when using the per-request logging middleware
+- Minor breaking changes through re-ordering and renaming some method parameters 
+
 # 3.0.0
 
 - Changed the `SetLogWriter` and `GetLogWriter` methods to a single `LogWriter` property with setter and getter.

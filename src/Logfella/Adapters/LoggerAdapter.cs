@@ -54,7 +54,7 @@ namespace Logfella.Adapters
             Exception exception,
             Func<TState, Exception, string> formatter)
         {
-            var logWriter = Logfella.Log.LogWriter;
+            var logWriter = Logfella.Log.GetLogWriter();
             var severity = MapToSeverity(logLevel);
             var message = formatter(state, exception);
 
