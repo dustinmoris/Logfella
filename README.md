@@ -251,10 +251,6 @@ logWriter.AddHttpContext(context);
 
 This feature makes most sense as part of the `LogWriterPerRequestMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
  
-## .NET Core 
- 
- All it takes to configure a .NET Core application to use Logfella when creating new `ILogger` or `ILogger<T>` instances from the `Microsoft.Extensions.Logging` namespace is to register the Logfella adapter during application startup:
- 
 ## Using with ASP.NET Core
 
 Configuring Logfella as the preferred logging library in a .NET Core application is as easy as registering the library via the `UseLogfella()` extension method of an `IHostBuilder` or alternatively of an `ILoggingBuilder` object:
