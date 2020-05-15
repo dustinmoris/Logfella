@@ -57,7 +57,6 @@ namespace Logfella.Adapters
             var logWriter = Logfella.Log.GetLogWriter();
             var severity = MapToSeverity(logLevel);
             var message = formatter(state, exception);
-
             var data = new Dictionary<string, object>();
 
             if (string.IsNullOrEmpty(_category))
@@ -69,6 +68,7 @@ namespace Logfella.Adapters
                 foreach (var kvp in items)
                 {
                     var (key, value) = kvp;
+
                     if (string.IsNullOrEmpty(key))
                         continue;
 
@@ -95,7 +95,7 @@ namespace Logfella.Adapters
             logLevel != LogLevel.None;
 
         // No support for scopes needed.
-        public IDisposable BeginScope<TState>(TState state)
-            => NoOpDisposable.Instance;
+        public IDisposable BeginScope<TState>(TState state) =>
+            NoOpDisposable.Instance;
     }
 }

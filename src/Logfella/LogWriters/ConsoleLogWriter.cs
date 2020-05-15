@@ -13,7 +13,7 @@ namespace Logfella.LogWriters
             Severity minSeverity,
             bool colorOutput = true,
             string correlationIdKey = "correlationId",
-            string correlationId = "")
+            string correlationId = null)
             : base(
                 minSeverity,
                 correlationIdKey,
@@ -61,18 +61,14 @@ namespace Logfella.LogWriters
                 return;
             }
 
-            var originalForegroundColour = Console.ForegroundColor;
-            var originalBackgroundColour = Console.BackgroundColor;
-            var (bg, colour) = PickColour(severity);
-            if (bg.HasValue)
-                Console.BackgroundColor = bg.Value;
-            Console.ForegroundColor = colour;
-            Console.WriteLine(sb.ToString());
-            Console.ForegroundColor = originalForegroundColour;
-            Console.BackgroundColor = originalBackgroundColour;
+            var (bgColor, fontColor) = PickColours(severity);
+            if (bgColor.HasValue)
+                WriteLine(sb.ToString(), bgColor.Value, fontColor);
+            else
+                WriteLine(sb.ToString(), fontColor);
         }
 
-        private static (ConsoleColor?, ConsoleColor) PickColour(Severity severity) =>
+        private static (ConsoleColor?, ConsoleColor) PickColours(Severity severity) =>
             severity switch
             {
                 Severity.Debug => (null, ConsoleColor.Gray),
@@ -85,5 +81,26 @@ namespace Logfella.LogWriters
                 Severity.Emergency => (ConsoleColor.Red, ConsoleColor.White),
                 _ => (null, ConsoleColor.White)
             };
+
+        private static void WriteLine(string message, ConsoleColor bgColor, ConsoleColor fontColor)
+        {
+            var originalForegroundColour = Console.ForegroundColor;
+            var originalBackgroundColour = Console.BackgroundColor;
+
+            Console.ForegroundColor = fontColor;
+            Console.WriteLine(message);
+            Console.BackgroundColor = bgColor;
+
+            Console.ForegroundColor = originalForegroundColour;
+            Console.BackgroundColor = originalBackgroundColour;
+        }
+
+        private static void WriteLine(string message, ConsoleColor fontColor)
+        {
+            var originalForegroundColour = Console.ForegroundColor;
+            Console.ForegroundColor = fontColor;
+            Console.WriteLine(message);
+            Console.ForegroundColor = originalForegroundColour;
+        }
     }
 }

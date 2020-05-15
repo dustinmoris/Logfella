@@ -1,16 +1,18 @@
 # Logfella
 
+![NuGet Badge](http://buildstats.info/nuget/logfella)
+
 Logfella is a small logging library specifically designed to work well with [Google Cloud Logging](https://cloud.google.com/logging/).
 
-If you are running a .NET Core or ASP.NET Core application inside GCP and want to write structured logs into [Google Cloud Logging](https://cloud.google.com/logging/) then this library will offer you a more advanced integration point than .NET Core's out of the box `ILogger` providers.
+If you are running a .NET Core or ASP.NET Core application inside GCP and want to write structured logs into [Google Cloud Logging](https://cloud.google.com/logging/) then this library will offer you a more complete integration point than .NET Core's out of the box `ILogger` providers.
 
-Logfella writes structured logs directly to stdout in a specific JSON format which GCP's log analyzer can natively understand and process accordingly. Logfella offers support for the full range of Google's severity levels, automatic propagation of exceptions into [Google Error Reporting](https://cloud.google.com/error-reporting), full integration with `Microsoft.Extensions.Logging` libraries and much more.
+Logfella writes structured logs directly to stdout in a specific JSON format which GCP's log analyzer can natively understand and process accordingly. Logfella offers support for the full range of [Google's severity levels](#severity-levels), automatic propagation of exceptions into [Google Error Reporting](https://cloud.google.com/error-reporting), full integration with `Microsoft.Extensions.Logging` libraries and much more.
 
 #### NOTE:
 
-This library is an early version mostly intended for personal use and neither the docs nor the APIs have been fully fledged out for wider exposure.
+This library is an early version mostly built for personal use and neither the docs nor the APIs have been fully tested or fine tuned for a more global exposure.
 
-That being said, it has been written with flexibility and extensibility 100% in mind and hopefully will be able to suit more than just my immediate and personal use case in the future. It's been open sourced under Apache 2.0 and feedback and/or PRs are more than welcome.
+That being said, it has been written with flexibility and extensibility 100% in mind and hopefully will be able to suit more than just my immediate and personal use case. It's been open sourced under Apache 2.0 and feedback and/or PRs are more than welcome.
 
 ## Benefits of Logfella
 
@@ -24,85 +26,224 @@ That being said, it has been written with flexibility and extensibility 100% in 
 - `ILogWriter` can be injected either via DI or called directly from the static `Log` instance
 - 100% customisable and extensible
 - Uses .NET Core's new `System.Text.Json` library for faster JSON serialisation
-- Supports log aggregation via an optional correlation ID which can be set on a `LogWriter` instance. The additional `PerRequestLogWriterMiddleware` makes it extremely easy to compute (or inherit) a correlation ID for all logs of a given HTTP request pipeline 
+- Supports log aggregation via an optional correlation ID which can be set on a `LogWriter` instance. The additional `LogWriterPerRequestMiddleware` makes it extremely easy to compute (or inherit) a correlation ID for all logs of a given HTTP request pipeline
+- HTTP request data can be logged with each log entry as part of the ASP.NET Core request pipeline
     
- ## How it works
+## Overview
  
- In its simplest form one has to create a logger object of type `ILogWriter` in order to start writing logs. Because this library is mainly designed for writing logs to Google Cloud Logging there are only four default loggers which come out of the box:
+In order to start logging with Logfella one has to create a logger object of type `ILogWriter`. By default this library comes with four loggers out of the box:
  
- - `GoogleCloudLogWriter`
- - `ConsoleLogWriter`
- - `MultiLogWriter`
- - `NullLogWriter`
+- `GoogleCloudLogWriter`
+- `ConsoleLogWriter`
+- `MultiLogWriter`
+- `NullLogWriter`
  
- The `GoogleCloudLogWriter` is the main implementation and why you're probably looking at using Logfella. The `ConsoleLogWriter` is a simple console writer which can be swapped for the `GoogleCloudLogWriter` during development. The `MultiLogWriter` is a convenience class to configure multiple log writers simultaneously. Lastly the `NullLogWriter` is the default implementation which the static `Log` instance gets configured with in order to avoid a `NullReferenceException` when the static log methods are being used (mainly from a functional F# architecture, since constructor DI is not idiomatic in functional programming).
+The `GoogleCloudLogWriter` is the main logger which should be used when an application is running inside the Google Cloud Platform. The `ConsoleLogWriter` is a simple console writer which can be swapped for the `GoogleCloudLogWriter` during development. The `MultiLogWriter` is a convenience class to configure multiple log writers simultaneously. Lastly the `NullLogWriter` is a void implementation which is used to prevent a `NullReferenceException` from occuring when no other log writer has been configured.
  
- ### GoogleCloudLogWriter
+## GoogleCloudLogWriter
  
- The `GoogleCloudLogWriter` is a relatively unexciting console log writer, which outputs log entries in a certain JSON format into `stdout` which Google's log analyzer knows how to parse and interpret correctly.
+The `GoogleCloudLogWriter` is a relatively unexciting console logger which outputs log entries in a certain JSON format into `stdout` which Google Cloud's log analyzer knows how to parse and interpret accordingly.
  
- The benefit of this architecture is that writing logs into GCP has almost no impact on latency, doesn't require any additional network calls and doesn't require batching like most other logging sinks. Logs arrive in the Google Cloud Logging console almost in near real-time with only fractions of a second to a couple seconds of delay in most cases.
+The benefit of writing logs in GCP in this way is that the process of logging itself has almost no impact on latency, doesn't require any additional network calls, doesn't require any obscure dependencies or convoluted infrastructure configuration and it doesn't require log batching like most other log providers do. Logs will get ingested into the Google Cloud Logging console almost in real-time and allow the StackDriver analyzer do its job best.
  
- The `GoogleCloudLogWriter` can be configured as following:
+The easiest way to create a new `GoogleCloudLogWriter` is to use the `Create(...)` builder method:
  
- ```csharp
-// Create a new instance of ILogWriter:
-
-var appName = "SampleApp";
-var appVersion = "v1.0.0";
-
-var logger =
-    new GoogleCloudLogWriter(
-        Severity.Debug,
-        appName,
-        appVersion,
-        false,
-        new Dictionary<string, string>
-        {
-            { "appName", appName },
-            { "appVersion", appVersion },
-            { "loggerType", "global" },
-            { "foo", "bar" }
-        });
-
-// Write logs:
-
-logger.Info("This is my first log entry.");
+###### C#
+ 
+```csharp
+var logWriter = GoogleCloudLogWriter.Create(Severity.Info);
 ```
 
-Currently the `GoogleCloudLogWriter` can be configured with the following settings:
+###### F#
 
-| Parameter | Default Value | Description |
-| :-------- | :------------ | :---------- |
-| `severity` | -- | The minimum severity level for writing logs. |
-| `serviceName` | `null` | The `serviceContext.service` property which is required by Google Cloud Error Reporting to capture error entries. |
-| `serviceVersion` | `null` | The `serviceContext.version` property used for Google Error Reporting. |
-| `useGoogleCloudTimestamp` | `false` | If `true` then log entries will not be decorated with the `timestamp` property and GCP will set its own `timestamp` when the log entry arrives. |
-| `labels` | `null` | Additional labels to be set on every log entry. |
-| `correlationIdKey` | `correlationId` | A string value setting the property name of an optional correlation ID. |
-| `correlationId` | `string.Empty` | An optional correlation ID by which logs can be aggregated. |
+```fsharp
+let logWriter = GoogleCloudLogWriter.Create Severity.Info
+```
+ 
+This will create a basic GCP log writer with the minimum set of features. The severity parameter supports the full range of GCP's severity levels (see below).
+ 
+### Severity Levels
+ 
+Google Cloud Logging supports the following severity levels:
+ 
+| Severity       | Value | Description |
+| :------------- | :---- | :---------- |
+| `Default` | 0 | The log entry has no assigned severity level. |
+| `Debug` | 100 | Debug or trace information. |
+| `Info` | 200 | Routine information, such as ongoing status or performance. |
+| `Notice` | 300 | Normal but significant events, such as start up, shut down, or a configuration change. |
+| `Warning` | 400 | Warning events might cause problems. |
+| `Error` | 500 | Error events are likely to cause problems. |
+| `Critical` | 600 | Critical events cause more severe problems or outages. |
+| `Alert` | 700 | A person must take an action immediately. |
+| `Emergency` | 800 | One or more systems are unusable. |
+ 
+### Configuring the GoogleCloudLogWriter
+ 
+The `GoogleCloudLogWriter` offers several builder methods which can be used to add additional features to the logger instance. The `GoogleCloudLogWriter` class itself is immutable and each builder method invocation will create a new instance which makes it safe to use in a multi threaded environment (which is useful when a new log writer has to be configured per HTTP request - more on this topic in the [ASP.NET Core section]()).
+ 
+#### Error Reporting Feature
+ 
+When logging an `Exception` object with the `Error` severity level or above (`Error`, `Critical`, `Alert` and `Emergency`) then the error can get automatically propagated into [Google Error Reporting](https://cloud.google.com/error-reporting). This is a handy feature if a team wants to take additional advantage of error tracking and automatic error notifications in the Google Cloud Platform.
+ 
+In order to enable this feature the `GoogleCloudLogWriter` has to be configured with a service context which the Error Reporting APIs rely on. This is done via the `AddServiceContext("serviceName", "serviceVersion")` builder method:
+ 
+###### C#
+ 
+```csharp
+var logWriter = 
+    GoogleCloudLogWriter
+        .Create(Severity.Info)
+        .AddServiceContext(
+            "<your-service-name>",
+            "<your-service-version>");
+```
 
-The `serviceName` and `serviceVersion` are only used for error reporting and will not appear in the structured logs of non error messages. For more information please check out the [Google Cloud Error Reporting formatting docs](https://cloud.google.com/error-reporting/docs/formatting-error-messages).
+###### F#
  
- Use `labels` to decorate all log entries with useful data which can help to meaningfully filter and aggregate multiple log entries (e.g. set a label for the application version in order to accurately attribute logs to a certain deployment).
+```fsharp
+let logWriter = 
+    GoogleCloudLogWriter
+        .Create(Severity.Info)
+        .AddServiceContext(
+            "<your-service-name>",
+            "<your-service-version>")
+```
+
+The service name and service version are two properties solely used b the Google Error Reporting APIs and will not appear in the structured logs otherwise. For more information please check out the [Google Cloud Error Reporting formatting docs](https://cloud.google.com/error-reporting/docs/formatting-error-messages).
+
+#### Labels
+
+Labels are a neat feature to "tag" log entries with useful meta data which can be used to sieve through a large number of logs. Common use cases would be to label (= tag) each log entry with the name of the application/service and the version of it. This can be extremely handy if a team is analysing logs and trying to attribute certain log entries to a specific application version (e.g. trying to understand which version introduced a newly occuring error).
+
+The `AddLabels(...)` builder method can be used to set a whole `IDictionary<string, string>` of labels on the `GoogleCloudLogWriter` instance, otherwise the `AddLabel(key, value)` builder method can be used to add an additional label to the existing dictionary of labels:
+
+###### C#
+   
+```csharp
+var logWriter = 
+    GoogleCloudLogWriter
+        .Create(Severity.Info)
+        .AddServiceContext(
+            "<your-service-name>",
+            "<your-service-version>")
+        .AddLabels(
+            new Dictionary<string, string>
+                {
+                    {"appName", "MyApp1234"},
+                    {"appVersion", "1.0.0"}
+                });
+
+// Add an extra label later:
+var newLogWriter = logWriter.AddLabel("foo", "bar");
+```
+  
+###### F#
+   
+```fsharp
+let logWriter =
+    GoogleCloudLogWriter
+        .Create(Severity.Debug)
+        .AddServiceContext(appName, appVersion)
+        .AddLabels(
+            dict [
+                "appName", "MyApp1234"
+                "appVersion", "1.0.0"
+            ])
+
+// Add an extra label later:
+let logWriter' = logWriter.AddLabel("foo", "bar")
+```
+
+#### Timestamp Settings
+
+By default the `GoogleCloudLogWriter` will set an ISO 8601 formatted UTC timestamp for each log entry, however if omitted then the Google Cloud log analyzer will set its own timestamp in RFC 3339 UTC "Zulu" format - accurate to nanoseconds and by 3 nanosecond digits more accurate than what .NET Core can achieve natively.
+
+Computing the timestamp in .NET Core will be closer to the actual time when the log entry is being written, whereas letting Google Cloud set its own timestamp will enable a higher accuracy between different log entries. It's a trade-off and if the latter is preferred then the `UseGoogleCloudTimestamp()` builder method can be used to configure the log writer accordingly:
+
+###### C#
+
+```csharp
+var logWriter = 
+    GoogleCloudLogWriter
+        .Create(Severity.Info)
+        .AddServiceContext(
+            "<your-service-name>",
+            "<your-service-version>")
+        .AddLabels(
+            new Dictionary<string, string>
+                {
+                    {"appName", "MyApp1234"},
+                    {"appVersion", "1.0.0"}
+                })
+        .UseGoogleCloudTimestamp();
+```
+
+###### F#
+   
+```fsharp
+let logWriter =
+    GoogleCloudLogWriter
+        .Create(Severity.Debug)
+        .AddServiceContext(appName, appVersion)
+        .AddLabels(
+            dict [
+                "appName", "MyApp1234"
+                "appVersion", "1.0.0"
+            ])
+        .UseGoogleCloudTimestamp()
+```
+
+#### Correlation ID
+
+Sometimes it can be very helpful to tag log entries with a specific ID in order to group correlated log entries together. This can be done by adding the correlation ID feature to the `GoogleCloudLogWriter`:
+
+###### C#
  
- The `severity` parameter must be any value of Google Cloud's severity levels:
+```csharp
+var logWriter = 
+    GoogleCloudLogWriter
+        .Create(Severity.Info)
+        .AddServiceContext(
+            "<your-service-name>",
+            "<your-service-version>")
+        .AddLabels(
+            new Dictionary<string, string>
+            {
+                {"appName", "MyApp1234"},
+                {"appVersion", "1.0.0"}
+            })
+        .UseGoogleCloudTimestamp()
+        .AddCorrelationId("<some id>");
+```
  
- | Severity Level | Value | Description |
- | :------------- | :---- | :---------- |
- | `Default` | 0 | The log entry has no assigned severity level. |
- | `Debug` | 100 | Debug or trace information. |
- | `Info` | 200 | Routine information, such as ongoing status or performance. |
- | `Notice` | 300 | Normal but significant events, such as start up, shut down, or a configuration change. |
- | `Warning` | 400 | Warning events might cause problems. |
- | `Error` | 500 | Error events are likely to cause problems. |
- | `Critical` | 600 | Critical events cause more severe problems or outages. |
- | `Alert` | 700 | A person must take an action immediately. |
- | `Emergency` | 800 | One or more systems are unusable. |
+###### F#
+    
+```fsharp
+let logWriter =
+    GoogleCloudLogWriter
+        .Create(Severity.Debug)
+        .AddServiceContext(appName, appVersion)
+        .AddLabels(
+            dict [
+                "appName", "MyApp1234"
+                "appVersion", "1.0.0"
+            ])
+        .UseGoogleCloudTimestamp()
+        .AddCorrelationId("<some id>")
+```
+
+The correlation ID will be set as part of the data dictionary of each log entry, which can be queried by the `jsonPayload.data.correlationId` property in the Google Cloud Console. If the name `correlationId` collides with another data piece with the same name, or if one simply wants to specify a different name, then an additional string argument can be passed into the `AddCorrelationId(value, key)` builder method to set a custom key:
+
+```
+logWriter.AddCorrelationId("<some id>", "requestId")
+```
+
+This feature is most useful in combination with the `LogWriterPerRequestMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
+
+#### HTTP Context
  
- For further information on `correlationIdKey` and `correlationId` please read the [ASP.NET Core](#using-with-aspnet-core) section of this document.
- 
- ## Using with Microsoft.Extensions.Logging
+## Using with Microsoft.Extensions.Logging
  
  All it takes to configure a .NET Core application to use Logfella when creating new `ILogger` or `ILogger<T>` instances from the `Microsoft.Extensions.Logging` namespace is to register the Logfella adapter during application startup:
  
@@ -120,22 +261,22 @@ Host.CreateDefaultBuilder(args)
     .Run(); 
 ```
  
- ## Using with ASP.NET Core
+## Using with ASP.NET Core
  
- More documentation coming soon.
+More documentation coming soon.
  
- #### C# Example
- 
- More documentation coming soon, but for now check out the sample application inside `/samples`.
- 
- #### F# Example
+#### C# Example
  
 More documentation coming soon, but for now check out the sample application inside `/samples`.
  
- ## Custom LogWriters
+#### F# Example
  
- Coming soon.
+More documentation coming soon, but for now check out the sample application inside `/samples`.
  
- ## License
+## Custom LogWriters
+ 
+Coming soon.
+ 
+## License
 
  [Apache 2.0](https://github.com/dustinmoris/Logfella/master/LICENSE)

@@ -11,9 +11,9 @@ namespace Logfella
         {
         }
 
-        private static readonly object _padlock = new object();
+        private static readonly object Padlock = new object();
 
-        private static ILogWriter _globalLogWriter =
+        private static ILogWriter _defaultLogWriter =
             new NullLogWriter(Severity.Default);
 
         private static readonly AsyncLocal<ILogWriter> AsyncLocalLogWriter =
@@ -25,21 +25,21 @@ namespace Logfella
         /// <para>Returns the current active instance of an `ILogWriter` implementation.</para>
         /// <para>In an ASP.NET Core application this could be a per-request `ILogWriter` instance if the corresponding middleware has been set up, otherwise it will always be the global `ILogWriter` singleton instance.</para>
         /// </summary>
-        public static ILogWriter GetLogWriter() => AsyncLocalLogWriter.Value ?? _globalLogWriter;
+        public static ILogWriter GetLogWriter() => AsyncLocalLogWriter.Value ?? _defaultLogWriter;
 
         /// <summary>
-        /// <para>Sets a global singleton `ILogWriter` instance.</para>
-        /// <para>Setting a global `ILogWriter` instance should only happen once during application start-up and this method has not been optimised for multiple updates at runtime in a multi threaded environment.</para>
+        /// <para>Sets a default singleton `ILogWriter` instance.</para>
+        /// <para>Setting a default `ILogWriter` instance should only happen once during application start-up and this method has not been optimised for multiple updates during runtime in a multi threaded environment.</para>
         /// </summary>
         /// <param name="logWriter"></param>
-        public static void SetGlobalLogWriter(ILogWriter logWriter)
+        public static void SetDefaultLogWriter(ILogWriter logWriter)
         {
             if (logWriter == null)
                 throw new ArgumentNullException(nameof(logWriter));
 
-            lock(_padlock)
+            lock(Padlock)
             {
-                _globalLogWriter = logWriter;
+                _defaultLogWriter = logWriter;
             }
         }
 

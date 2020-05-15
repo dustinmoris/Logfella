@@ -1,3 +1,13 @@
+# 5.0.0
+
+- Renamed `IncludeHttpRequest` to `AddHttpContext`
+- Renamed `Log.SetGlobalLogWriter` to `Log.SetDefaultLogWriter`
+- Added `AsLogWriter` convenience method for F# to cast any log writer to the common interface
+- Made all log writers immutable
+- Added immutable builder methods to the `GoogleCloudLogWriter` to allow a more dynamic, flexible and safe composition API
+- Fixed double `/` bug in the request path of the `httpRequest` object
+- Improved error logging
+
 # 4.0.0
 
 - Removed duplicate error logging
