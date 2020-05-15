@@ -80,7 +80,7 @@ Google Cloud Logging supports the following severity levels:
  
 ### Configuring the GoogleCloudLogWriter
  
-The `GoogleCloudLogWriter` offers several builder methods which can be used to add additional features to the logger instance. The `GoogleCloudLogWriter` class itself is immutable and each builder method invocation will create a new instance which makes it safe to use in a multi threaded environment (which is useful when a new log writer has to be configured per HTTP request - more on this topic in the [ASP.NET Core section]()).
+The `GoogleCloudLogWriter` offers several builder methods which can be used to add additional features to the logger instance. The `GoogleCloudLogWriter` class itself is immutable and each builder method invocation will create a new instance which makes it safe to use in a multi threaded environment (which is useful when a new log writer has to be configured per HTTP request - more on this topic in the [ASP.NET Core section](#using-with-aspnet-core)).
  
 #### Error Reporting Feature
  
