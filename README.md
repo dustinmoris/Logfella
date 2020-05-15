@@ -242,12 +242,26 @@ logWriter.AddCorrelationId("<some id>", "requestId")
 This feature is most useful in combination with the `LogWriterPerRequestMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
 
 #### HTTP Context
+
+Log entries can also include information about the HTTP request if they've been written during the ASP.NET Core request pipeline. In order to do so pass the `HttpContext` object into the `AddHttpContext(ctx)` builder method:
+
+```
+logWriter.AddHttpContext(context);
+```
+
+This feature makes most sense as part of the `LogWriterPerRequestMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
  
-## Using with Microsoft.Extensions.Logging
+## .NET Core 
  
  All it takes to configure a .NET Core application to use Logfella when creating new `ILogger` or `ILogger<T>` instances from the `Microsoft.Extensions.Logging` namespace is to register the Logfella adapter during application startup:
  
- ```csharp
+## Using with ASP.NET Core
+
+Configuring Logfella as the preferred logging library in a .NET Core application is as easy as registering the library via the `UseLogfella()` extension method of an `IHostBuilder` or alternatively of an `ILoggingBuilder` object:
+
+###### C#
+
+```csharp
 Host.CreateDefaultBuilder(args)
     .UseLogfella()
     .ConfigureWebHost(
@@ -261,21 +275,25 @@ Host.CreateDefaultBuilder(args)
     .Run(); 
 ```
  
-## Using with ASP.NET Core
- 
-More documentation coming soon.
- 
-#### C# Example
- 
-More documentation coming soon, but for now check out the sample application inside `/samples`.
- 
-#### F# Example
- 
-More documentation coming soon, but for now check out the sample application inside `/samples`.
- 
-## Custom LogWriters
- 
-Coming soon.
+###### F#
+
+```fsharp
+Host.CreateDefaultBuilder()
+    .UseLogfella()
+    .ConfigureWebHost(
+        fun webHostBuilder ->
+            webHostBuilder
+                .UseKestrel()
+                .Configure(configureApp)
+                .ConfigureServices(configureServices)
+                |> ignore)
+    .Build()
+    .Run()
+```
+
+Additionally the `LogWriterPerRequestMiddleware` can be registered early in the HTTP pipeline to decorate all log entries with HTTP context information and an optional correlation ID.
+
+For a more detailed example of how to use Logfella as part of an ASP.NET core web application please refer to the MVC example in C# or the Giraffe application in F#, which are both found in the `/samples` directory of this repository.
  
 ## License
 
