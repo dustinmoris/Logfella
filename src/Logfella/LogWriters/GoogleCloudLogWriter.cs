@@ -235,7 +235,8 @@ namespace Logfella.LogWriters
                 correlationIdKey,
                 correlationId)
         {
-            _httpRequestContext = requestCtx.DeepClone();
+            if (requestCtx != null)
+                _httpRequestContext = requestCtx.DeepClone();
         }
 
         public GoogleCloudLogWriter DeepClone() =>

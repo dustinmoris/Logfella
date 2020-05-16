@@ -1,3 +1,7 @@
+# 5.0.1
+
+Fixed private `ctor` of `GoogleCloudLogWriter`
+
 # 5.0.0
 
 - Renamed `IncludeHttpRequest` to `AddHttpContext`
