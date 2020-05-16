@@ -8,14 +8,17 @@ namespace Logfella.AspNetCore
     public class RequestLoggingMiddleware
     {
         private readonly bool _isEnabled;
+        private readonly bool _logOnlyOnceAfter;
         private readonly RequestDelegate _next;
 
         public RequestLoggingMiddleware(
             bool isEnabled,
+            bool logOnlyOnceAfter,
             RequestDelegate next)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _isEnabled = isEnabled;
+            _logOnlyOnceAfter = logOnlyOnceAfter;
         }
 
         public async Task InvokeAsync(HttpContext ctx)
@@ -26,18 +29,46 @@ namespace Logfella.AspNetCore
                 return;
             }
 
-            var before = RequestData.FromContext(ctx);
-            await _next(ctx);
-            var after = RequestData.FromContext(ctx);
+            if (_logOnlyOnceAfter)
+            {
+                var before = RequestData.FromContext(ctx);
+                await _next(ctx);
+                var after = RequestData.FromContext(ctx);
 
-            Log.Info(
-                after.ToString(),
-                new Dictionary<string, object>
-                {
-                    {"categoryName", "requestLogging"},
-                    {"requestBefore", before},
-                    {"requestAfter", after}
-                });
+                Log.Info(
+                    after.ToString(),
+                    new Dictionary<string, object>
+                    {
+                        {"categoryName", "requestLogging"},
+                        {"requestLoggingType", "onceAfter"},
+                        {"requestBefore", before},
+                        {"requestAfter", after}
+                    });
+            }
+            else
+            {
+                var before = RequestData.FromContext(ctx);
+                Log.Info(
+                    before.ToString(),
+                    new Dictionary<string, object>
+                    {
+                        {"categoryName", "requestLogging"},
+                        {"requestLoggingType", "before"},
+                        {"request", before}
+                    });
+
+                await _next(ctx);
+
+                var after = RequestData.FromContext(ctx);
+                Log.Info(
+                    after.ToString(),
+                    new Dictionary<string, object>
+                    {
+                        {"categoryName", "requestLogging"},
+                        {"requestLoggingType", "after"},
+                        {"request", after}
+                    });
+            }
         }
     }
 }

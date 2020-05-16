@@ -26,7 +26,7 @@ namespace Logfella.Samples.MVC
             // one has full control over how or which `ILogWriter` to use and to inspect an incoming
             // HttpRequest in order to dynamically configure the instance (e.g. check the HTTP
             // headers for an X-Correlation-Id header and use that value as `requestId`):
-            app.UseLogWriterPerRequest(
+            app.UseRequestBasedLogWriter(
                 ctx =>
                     // Note that one can use an already existing and pre-configured GoogleCloudLogWriter
                     // to extend it with additional features without having to re-create the entire

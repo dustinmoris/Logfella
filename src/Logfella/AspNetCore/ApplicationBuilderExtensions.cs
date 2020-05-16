@@ -8,12 +8,13 @@ namespace Logfella.AspNetCore
     {
         public static IApplicationBuilder UseRequestLogging(
             this IApplicationBuilder builder,
-            bool isEnabled = true) =>
+            bool isEnabled = true,
+            bool logOnlyOnceAfter = false) =>
             builder.UseMiddleware<RequestLoggingMiddleware>(isEnabled);
 
-        public static IApplicationBuilder UseLogWriterPerRequest(
+        public static IApplicationBuilder UseRequestBasedLogWriter(
             this IApplicationBuilder builder,
             Func<HttpContext, ILogWriter> logWriterFactory) =>
-            builder.UseMiddleware<LogWriterPerRequestMiddleware>(logWriterFactory);
+            builder.UseMiddleware<RequestBasedLogWriterMiddleware>(logWriterFactory);
     }
 }

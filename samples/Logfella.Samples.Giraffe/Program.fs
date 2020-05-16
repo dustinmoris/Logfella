@@ -87,7 +87,7 @@ module Program =
         // one has full control over how or which `ILogWriter` to use and to inspect an incoming
         // HttpRequest in order to dynamically configure the instance (e.g. check the HTTP
         // headers for an X-Correlation-Id header and use that value as `requestId`):
-        app.UseLogWriterPerRequest(
+        app.UseRequestBasedLogWriter(
             fun ctx ->
                 // Note that one can use an already existing and pre-configured GoogleCloudLogWriter
                 // to extend it with additional features without having to re-create the entire
@@ -124,7 +124,7 @@ module Program =
         with ex ->
             // Note that the above configured "per-request" ILogWriter only exists in the scope
             // of the middleware and any middleware beneath it. Middleware which writes logs before
-            // the `LogWriterPerRequestMiddleware` has been called or log calls which occur outside
+            // the `RequestBasedLogWriterMiddleware` has been called or log calls which occur outside
             // the entire HTTP pipeline altogether (like this one directly in the main function)
             // will obviously not have a request based `ILogWriter` and use the globally configured
             // default ILogWriter which has been set up via `Log.SetDefaultLogWriter(...)`

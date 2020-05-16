@@ -1,3 +1,9 @@
+# 6.0.0
+
+- Naming is hard, therefore renamed `LogWriterPerRequestMiddleware` to `RequestBasedLogWriterMiddleware`
+- Extended the `RequestLoggingMiddleware` to have an option for logging before and after other middleware has been invoked (helpful to debug X-Forwarded-For settings and middleware)
+- Added a new `MuteLogWriter` and the `Mute` builder class to filter/mute log entries based on a predicate (experimental)
+
 # 5.0.1
 
 Fixed private `ctor` of `GoogleCloudLogWriter`
