@@ -1,3 +1,7 @@
+# 6.0.1
+
+Fixed `UseRequestLogging` extension method.
+
 # 6.0.0
 
 - Naming is hard, therefore renamed `LogWriterPerRequestMiddleware` to `RequestBasedLogWriterMiddleware`

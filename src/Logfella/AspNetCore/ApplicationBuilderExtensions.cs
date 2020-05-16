@@ -10,7 +10,7 @@ namespace Logfella.AspNetCore
             this IApplicationBuilder builder,
             bool isEnabled = true,
             bool logOnlyOnceAfter = false) =>
-            builder.UseMiddleware<RequestLoggingMiddleware>(isEnabled);
+            builder.UseMiddleware<RequestLoggingMiddleware>(isEnabled, logOnlyOnceAfter);
 
         public static IApplicationBuilder UseRequestBasedLogWriter(
             this IApplicationBuilder builder,
