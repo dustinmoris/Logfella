@@ -71,13 +71,17 @@ namespace Logfella
             if (severity < MinSeverity)
                 return;
 
-            if (!string.IsNullOrEmpty(CorrelationId))
-            {
-                data ??= new Dictionary<string, object>();
-                data.Add(CorrelationIdKey, CorrelationId);
-            }
+            // In F# a dict is an immutable implementation of IDictionary<TKey, TValue>
+            // and when calling the Add() method it will throw a NotSupportedException at
+            // runtime, which is a terrible implementation by Microsoft, but given that
+            // we cannot rely on it being a mutable dictionary we must create a safe copy
+            // See: https://stackoverflow.com/questions/38119784/f-generic-idictionary-extension-failed
+            var copy = new Dictionary<string, object>(data);
 
-            WriteLog(severity, message, data, ex);
+            if (!string.IsNullOrEmpty(CorrelationId))
+                copy.Add(CorrelationIdKey, CorrelationId);
+
+            WriteLog(severity, message, copy, ex);
         }
 
         /// <inheritdoc />

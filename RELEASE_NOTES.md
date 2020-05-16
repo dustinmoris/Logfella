@@ -1,3 +1,7 @@
+# 6.1.0
+
+Always creating a safe copy of the data dictionary to prevent a `NotSupportedException` when adding additional items in F# where the `dict` type only returns an immutable version of `IDictionary<TKey, TValue>`
+
 # 6.0.1
 
 Fixed `UseRequestLogging` extension method.
