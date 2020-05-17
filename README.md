@@ -1,4 +1,6 @@
-# Logfella
+# ![logo][] Logfella
+
+[logo]: https://raw.githubusercontent.com/dustinmoris/Logfella/master/assets/logfella.svg
 
 ![NuGet Badge](http://buildstats.info/nuget/logfella)
 
