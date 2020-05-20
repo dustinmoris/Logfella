@@ -2,7 +2,7 @@
 
 [logo]: https://raw.githubusercontent.com/dustinmoris/Logfella/master/assets/logfella-64x64.png
 
-![NuGet Badge](http://buildstats.info/nuget/logfella)
+[![NuGet Badge](http://buildstats.info/nuget/logfella)](https://www.nuget.org/packages/Logfella/)
 
 Logfella is a small logging library specifically designed to work well with [Google Cloud Logging](https://cloud.google.com/logging/).
 
