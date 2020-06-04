@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
@@ -6,24 +7,38 @@ namespace Logfella.AspNetCore
 {
     public class RequestData
     {
-        public string ClientIPAddress { get; set; }
-        public string Scheme { get; set; }
-        public string Protocol { get; set; }
-        public string Verb { get; set; }
-        public string Host { get; set; }
-        public string Path { get; set; }
-        public string Query { get; set; }
-        public Dictionary<string, string> Headers { get; set; }
+        private RequestData()
+        {
+        }
+
+        public string ClientIPAddress { get; private set; }
+        public string Scheme { get; private set; }
+        public string Protocol { get; private set; }
+        public string Verb { get; private set; }
+        public string Host { get; private set; }
+        public string Path { get; private set; }
+        public string Query { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
         public override string ToString() =>
             $"Incoming: {Protocol} {Verb} {Scheme}://{Host}{Path}{Query} from {ClientIPAddress}";
 
-        public static RequestData FromContext(HttpContext ctx)
+        public static RequestData FromContext(
+            HttpContext ctx,
+            HashSet<string> includeHttpHeaders,
+            HashSet<string> excludeHttpHeaders)
         {
             var req = ctx.Request;
             var headers = new Dictionary<string, string>();
 
-            foreach (var key in req.Headers.Keys.OrderBy(k => k))
+            bool FilterByInclusion(string k) => includeHttpHeaders == null || includeHttpHeaders.Contains(k);
+            bool FilterByExclusion(string k) => excludeHttpHeaders == null || !excludeHttpHeaders.Contains(k);
+
+            foreach (var key in
+                req.Headers.Keys
+                    .Where(FilterByInclusion)
+                    .Where(FilterByExclusion)
+                    .OrderBy(k => k))
             {
                 var value = req.Headers[key];
                 headers.Add(key, value.ToString());

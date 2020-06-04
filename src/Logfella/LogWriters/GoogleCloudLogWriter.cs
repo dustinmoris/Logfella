@@ -132,15 +132,8 @@ namespace Logfella.LogWriters
             public const string ServiceName = "serviceContext.service";
             public const string ServiceVersion = "serviceContext.version";
             public const string Message = "message";
-            public const string Type = "@type";
             public const string HttpRequest = "httpRequest";
             public const string Labels = "logging.googleapis.com/labels";
-        }
-
-        private static class Values
-        {
-            public const string ErrorType =
-                "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent";
         }
 
         // ------------------------------------------
@@ -380,7 +373,6 @@ namespace Logfella.LogWriters
             if (ex != null)
             {
                 logEntry.Add(Keys.Message, $"{message}\n\nException:\n\n{ex}");
-                //logEntry.Add(Keys.Type, Values.ErrorType);
                 logEntry.Add("error", new ErrorContext(ex));
             }
             else

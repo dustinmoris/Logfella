@@ -112,7 +112,7 @@ let logWriter =
             "<your-service-version>")
 ```
 
-The service name and service version are two properties solely used b the Google Error Reporting APIs and will not appear in the structured logs otherwise. For more information please check out the [Google Cloud Error Reporting formatting docs](https://cloud.google.com/error-reporting/docs/formatting-error-messages).
+The service name and service version are two properties solely used by the Google Error Reporting APIs and will not appear in the structured logs otherwise. For more information please check out the [Google Cloud Error Reporting formatting docs](https://cloud.google.com/error-reporting/docs/formatting-error-messages).
 
 #### Labels
 

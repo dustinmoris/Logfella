@@ -9,16 +9,22 @@ namespace Logfella.AspNetCore
     {
         private readonly bool _isEnabled;
         private readonly bool _logOnlyOnceAfter;
+        private readonly HashSet<string> _includeHttpHeaders;
+        private readonly HashSet<string> _excludeHttpHeaders;
         private readonly RequestDelegate _next;
 
         public RequestLoggingMiddleware(
             bool isEnabled,
             bool logOnlyOnceAfter,
+            HashSet<string> includeHttpHeaders,
+            HashSet<string> excludeHttpHeaders,
             RequestDelegate next)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _isEnabled = isEnabled;
             _logOnlyOnceAfter = logOnlyOnceAfter;
+            _includeHttpHeaders = includeHttpHeaders;
+            _excludeHttpHeaders = excludeHttpHeaders;
         }
 
         public async Task InvokeAsync(HttpContext ctx)
@@ -31,9 +37,9 @@ namespace Logfella.AspNetCore
 
             if (_logOnlyOnceAfter)
             {
-                var before = RequestData.FromContext(ctx);
+                var before = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
                 await _next(ctx);
-                var after = RequestData.FromContext(ctx);
+                var after = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
 
                 Log.Info(
                     after.ToString(),
@@ -47,7 +53,7 @@ namespace Logfella.AspNetCore
             }
             else
             {
-                var before = RequestData.FromContext(ctx);
+                var before = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
                 Log.Info(
                     before.ToString(),
                     new Dictionary<string, object>
@@ -59,7 +65,7 @@ namespace Logfella.AspNetCore
 
                 await _next(ctx);
 
-                var after = RequestData.FromContext(ctx);
+                var after = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
                 Log.Info(
                     after.ToString(),
                     new Dictionary<string, object>
