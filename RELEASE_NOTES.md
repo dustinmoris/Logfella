@@ -1,3 +1,22 @@
+# 6.2.0
+
+The request logging middleware accepts two new parameters to filter HTTP headers from the logs:
+
+- `includeHttpHeaders`
+- `excludeHttpHeaders`
+
+Example usage:
+
+```
+app.UseRequestLogging(
+        excludeHttpHeaders: HashSet.New("Authorization", "Cookie", "X-ApiKey"))
+    .UseRouting()
+    .UseEndpoints(
+        endpoints => { endpoints.MapControllers(); });
+```
+
+The `HashSet.New` helper method is just a nicer way of initialising a `HashSet<string>` of http headers in the example above. It's particularly helpful in F# projects where creating a new hash set is not as straight forward as `new HashSet<string> { "..." }` due to the awkward interop between F# and C# type classes.
+
 # 6.1.0
 
 Always creating a safe copy of the data dictionary to prevent a `NotSupportedException` when adding additional items in F# where the `dict` type only returns an immutable version of `IDictionary<TKey, TValue>`

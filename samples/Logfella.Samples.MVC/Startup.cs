@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Logfella.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +48,8 @@ namespace Logfella.Samples.MVC
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app .UseRequestLogging()
+            app .UseRequestLogging(
+                    excludeHttpHeaders: HashSet.New("Authorization", "Cookie", "X-ApiKey"))
                 .UseRouting()
                 .UseEndpoints(
                     endpoints => { endpoints.MapControllers(); });
