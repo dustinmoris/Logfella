@@ -1,4 +1,4 @@
-# ![logo][] <span style="font-size: 3em;">Logfella</span>
+# ![logo][] Logfella
 
 [logo]: https://raw.githubusercontent.com/dustinmoris/Logfella/master/assets/logfella-64x64.png
 
@@ -292,6 +292,14 @@ Host.CreateDefaultBuilder()
 Additionally the `RequestBasedLogWriterMiddleware` can be registered early in the HTTP pipeline to decorate all log entries with HTTP context information and an optional correlation ID.
 
 For a more detailed example of how to use Logfella as part of an ASP.NET core web application please refer to the MVC example in C# or the Giraffe application in F#, which are both found in the `/samples` directory of this repository.
+
+## Examples
+
+This is an example of what logs can be like when using Logfella:
+
+![screenshot-1](https://raw.githubusercontent.com/dustinmoris/Logfella/master/screenshots/logfella-demo-1.png)
+
+![screenshot-2](https://raw.githubusercontent.com/dustinmoris/Logfella/master/screenshots/logfella-demo-2.png)
  
 ## License
 
