@@ -1,4 +1,4 @@
-# ![logo][] Logfella
+# ![logo][] <span style="font-size: 3em;">Logfella</span>
 
 [logo]: https://raw.githubusercontent.com/dustinmoris/Logfella/master/assets/logfella-64x64.png
 
