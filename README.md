@@ -28,7 +28,7 @@ That being said, it has been written with flexibility and extensibility 100% in 
 - `ILogWriter` can be injected either via DI or called directly from the static `Log` instance
 - 100% customisable and extensible
 - Uses .NET Core's new `System.Text.Json` library for faster JSON serialisation
-- Supports log aggregation via an optional correlation ID which can be set on a `LogWriter` instance. The additional `RequestBasedLogWriterMiddleware` makes it extremely easy to compute (or inherit) a correlation ID for all logs of a given HTTP request pipeline
+- Supports log aggregation via an optional correlation ID which can be set on a `LogWriter` instance. The additional `RequestScopedLogWriterMiddleware` makes it extremely easy to compute (or inherit) a correlation ID for all logs of a given HTTP request pipeline
 - HTTP request data can be logged with each log entry as part of the ASP.NET Core request pipeline
     
 ## Overview
@@ -241,7 +241,7 @@ The correlation ID will be set as part of the data dictionary of each log entry,
 logWriter.AddCorrelationId("<some id>", "requestId")
 ```
 
-This feature is most useful in combination with the `RequestBasedLogWriterMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
+This feature is most useful in combination with the `RequestScopedLogWriterMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
 
 #### HTTP Context
 
@@ -251,7 +251,7 @@ Log entries can also include information about the HTTP request if they've been 
 logWriter.AddHttpContext(context);
 ```
 
-This feature makes most sense as part of the `RequestBasedLogWriterMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
+This feature makes most sense as part of the `RequestScopedLogWriterMiddleware` (see [ASP.NET Core](#using-with-aspnet-core)).
  
 ## Using with ASP.NET Core
 
@@ -289,7 +289,7 @@ Host.CreateDefaultBuilder()
     .Run()
 ```
 
-Additionally the `RequestBasedLogWriterMiddleware` can be registered early in the HTTP pipeline to decorate all log entries with HTTP context information and an optional correlation ID.
+Additionally the `RequestScopedLogWriterMiddleware` can be registered early in the HTTP pipeline to decorate all log entries with HTTP context information and an optional correlation ID.
 
 For a more detailed example of how to use Logfella as part of an ASP.NET core web application please refer to the MVC example in C# or the Giraffe application in F#, which are both found in the `/samples` directory of this repository.
 

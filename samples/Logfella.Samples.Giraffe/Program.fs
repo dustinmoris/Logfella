@@ -87,7 +87,7 @@ module Program =
         // one has full control over how or which `ILogWriter` to use and to inspect an incoming
         // HttpRequest in order to dynamically configure the instance (e.g. check the HTTP
         // headers for an X-Correlation-Id header and use that value as `requestId`):
-        app.UseRequestBasedLogWriter(
+        app.UseRequestScopedLogWriter(
             fun ctx ->
                 // Note that one can use an already existing and pre-configured GoogleCloudLogWriter
                 // to extend it with additional features without having to re-create the entire
@@ -98,6 +98,8 @@ module Program =
                     .AddHttpContext(ctx)
                     .AddCorrelationId(Guid.NewGuid().ToString("N"), "requestId")
                     .AsLogWriter()) // <- Convenience method to cast GoogleCloudLogWriter to ILogWriter in F#
+           .UseRequestLogging(
+                fun o -> o.IsEnabled <- true)
            .UseGiraffeErrorHandler(errorHandler)
            .UseGiraffe routes
 
@@ -124,9 +126,9 @@ module Program =
         with ex ->
             // Note that the above configured "per-request" ILogWriter only exists in the scope
             // of the middleware and any middleware beneath it. Middleware which writes logs before
-            // the `RequestBasedLogWriterMiddleware` has been called or log calls which occur outside
+            // the `RequestScopedLogWriterMiddleware` has been called or log calls which occur outside
             // the entire HTTP pipeline altogether (like this one directly in the main function)
-            // will obviously not have a request based `ILogWriter` and use the globally configured
+            // will obviously not have a request scoped `ILogWriter` and use the globally configured
             // default ILogWriter which has been set up via `Log.SetDefaultLogWriter(...)`
             Log.Emergency("Host terminated unexpectedly.", ex)
             1

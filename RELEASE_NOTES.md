@@ -1,3 +1,10 @@
+# 7.0.0
+
+- Renamed `RequestBasedLogWriterMiddleware` to `RequestScopedLogWriterMiddleware`
+- Changed the `RequestLoggingMiddleware` to use an object of `RequestLoggingOptions` for its configuration.
+
+The extension method `app.UseRequestLogging(...)` has changed its signature from multiple optional parameters to accepting a single `Action<RequestLoggingOptions>` method to configure the middleware.
+
 # 6.2.0
 
 The request logging middleware accepts two new parameters to filter HTTP headers from the logs:

@@ -5,41 +5,54 @@ using Microsoft.AspNetCore.Http;
 
 namespace Logfella.AspNetCore
 {
+    public class RequestLoggingOptions
+    {
+        public RequestLoggingOptions()
+        {
+            IsEnabled = true;
+            LogOnlyAfter = false;
+            IncludeHttpHeaders = null;
+            ExcludeHttpHeaders = null;
+        }
+
+        public bool IsEnabled { get; set; }
+        public bool LogOnlyAfter { get; set; }
+        public HashSet<string> IncludeHttpHeaders { get; set; }
+        public HashSet<string> ExcludeHttpHeaders { get; set; }
+    }
+
     public class RequestLoggingMiddleware
     {
-        private readonly bool _isEnabled;
-        private readonly bool _logOnlyOnceAfter;
-        private readonly HashSet<string> _includeHttpHeaders;
-        private readonly HashSet<string> _excludeHttpHeaders;
+        private readonly RequestLoggingOptions _options;
         private readonly RequestDelegate _next;
 
+        public RequestLoggingMiddleware(RequestDelegate next)
+        {
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _options = new RequestLoggingOptions();
+        }
+
         public RequestLoggingMiddleware(
-            bool isEnabled,
-            bool logOnlyOnceAfter,
-            HashSet<string> includeHttpHeaders,
-            HashSet<string> excludeHttpHeaders,
+            RequestLoggingOptions options,
             RequestDelegate next)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
-            _isEnabled = isEnabled;
-            _logOnlyOnceAfter = logOnlyOnceAfter;
-            _includeHttpHeaders = includeHttpHeaders;
-            _excludeHttpHeaders = excludeHttpHeaders;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task InvokeAsync(HttpContext ctx)
         {
-            if (!_isEnabled)
+            if (!_options.IsEnabled)
             {
                 await _next(ctx);
                 return;
             }
 
-            if (_logOnlyOnceAfter)
+            if (_options.LogOnlyAfter)
             {
-                var before = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
+                var before = RequestData.FromContext(ctx, _options.IncludeHttpHeaders, _options.ExcludeHttpHeaders);
                 await _next(ctx);
-                var after = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
+                var after = RequestData.FromContext(ctx, _options.IncludeHttpHeaders, _options.ExcludeHttpHeaders);
 
                 Log.Info(
                     after.ToString(),
@@ -53,7 +66,7 @@ namespace Logfella.AspNetCore
             }
             else
             {
-                var before = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
+                var before = RequestData.FromContext(ctx, _options.IncludeHttpHeaders, _options.ExcludeHttpHeaders);
                 Log.Info(
                     before.ToString(),
                     new Dictionary<string, object>
@@ -65,7 +78,7 @@ namespace Logfella.AspNetCore
 
                 await _next(ctx);
 
-                var after = RequestData.FromContext(ctx, _includeHttpHeaders, _excludeHttpHeaders);
+                var after = RequestData.FromContext(ctx, _options.IncludeHttpHeaders, _options.ExcludeHttpHeaders);
                 Log.Info(
                     after.ToString(),
                     new Dictionary<string, object>

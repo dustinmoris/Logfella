@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace Logfella.AspNetCore
 {
-    public class RequestBasedLogWriterMiddleware
+    public class RequestScopedLogWriterMiddleware
     {
         private readonly Func<HttpContext, ILogWriter> _logWriterFactory;
         private readonly RequestDelegate _next;
 
-        public RequestBasedLogWriterMiddleware(
+        public RequestScopedLogWriterMiddleware(
             Func<HttpContext, ILogWriter> logWriterFactory,
             RequestDelegate next)
         {
