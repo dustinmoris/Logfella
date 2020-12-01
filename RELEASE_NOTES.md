@@ -1,3 +1,9 @@
+# 7.1.0
+
+- Upgraded to .NET 5
+
+Logfella `7.1.0` and `7.0.0` are identical in functionality, but `7.1.0` is targetting .NET 5 only now.
+
 # 7.0.0
 
 - Renamed `RequestBasedLogWriterMiddleware` to `RequestScopedLogWriterMiddleware`
@@ -57,7 +63,7 @@ Fixed private `ctor` of `GoogleCloudLogWriter`
 - Removed duplicate error logging
 - Setting the `@type` property for exception logs
 - Added ability to log request data when using the per-request logging middleware
-- Minor breaking changes through re-ordering and renaming some method parameters 
+- Minor breaking changes through re-ordering and renaming some method parameters
 
 # 3.0.0
 

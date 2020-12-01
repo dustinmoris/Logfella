@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Giraffe" Version="4.1.*" />
+        <PackageReference Include="Giraffe" Version="5.0.0-rc-3" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <ProjectReference Include="..\..\src\Logfella\Logfella.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <Compile Include="Program.fs" />
     </ItemGroup>
