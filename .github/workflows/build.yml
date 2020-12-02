@@ -1,10 +1,10 @@
-name: .NET Core
+name: .NET
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
   release:
     types:
       - published
@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.100
     - name: Restore
-      run: dotnet restore src/Logfella/Logfella.csproj
+      run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore src/Logfella/Logfella.csproj
+      run: dotnet build --configuration Release --no-restore
     - name: Pack
       run: dotnet pack --configuration Release --no-restore --verbosity normal src/Logfella/Logfella.csproj
     - name: Upload Artifact
